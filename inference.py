@@ -1,7 +1,8 @@
 import torch
 import gym
+import numpy as np
 from gym.wrappers import TimeLimit
-from cartpolechat1 import DQN  # Assuming DQN is defined in cartpolechat1.py
+from cartpolechat1 import DQN, add_state_dim  # Assuming DQN is defined in cartpolechat1.py
 # --- Load environment ---
 env = gym.make("CartPole-v1", render_mode="human")
 if isinstance(env, gym.wrappers.TimeLimit):
@@ -14,7 +15,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # DQN should be already defined somewhere like:
 # class DQN(nn.Module): ...
 
-state_dim = env.observation_space.shape[0]
+state_dim = env.observation_space.shape[0] + 1
 action_dim = env.action_space.n
 policy_net = DQN(state_dim, action_dim).to(device)
 
@@ -30,6 +31,7 @@ init_state = [0,0,0,0]
 with torch.no_grad():  # No gradients during testing
     for episode in range(1, 101):
         init_state, _ = env.reset()
+        init_state = add_state_dim(init_state)
         state = init_state
         env.render()  # Render the environment
         total_reward = 0
@@ -41,6 +43,8 @@ with torch.no_grad():  # No gradients during testing
             action = q_values.argmax(1).item()
 
             next_state, reward, terminated, truncated, _ = env.step(action)
+            next_state = add_state_dim(next_state)
+            
             done = terminated or truncated
             state = next_state
             total_reward += reward

@@ -8,6 +8,10 @@ import torch.optim as optim
 import random
 from gym.wrappers import TimeLimit
 
+def add_state_dim(state):
+    # Add a new dimension to the state vector
+    return np.append(state, state[0] * state[1] * state[2] * state[2] * 10**3)  # Example: product of first three elements
+
 # --- Prioritized Replay Buffer ---
 class PrioritizedReplayBuffer:
     def __init__(self, capacity, alpha=0.6):
@@ -81,7 +85,7 @@ def train():
     # Now wrap manually
     env = TimeLimit(env, max_episode_steps=3000)
 
-    state_dim = env.observation_space.shape[0]
+    state_dim = env.observation_space.shape[0] + 1
     action_dim = env.action_space.n
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -101,10 +105,11 @@ def train():
 
     epsilon = epsilon_start
     total_reward = 0
-    
+
     # --- Training ---
     for episode in range(1, 500):
         state, _ = env.reset()
+        state = add_state_dim(state)  
         # total_reward = 0
         done = False
         while not done:
@@ -117,8 +122,10 @@ def train():
             else:
                 with torch.no_grad():
                     action = policy_net(torch.tensor(state, dtype=torch.float32).to(device)).argmax().item()
-
+            
             next_state, reward, terminated, truncated, _ = env.step(action)
+            next_state = add_state_dim(next_state)
+
             done = terminated or truncated
             buffer.add(state, action, reward, next_state, done)
             state = next_state
