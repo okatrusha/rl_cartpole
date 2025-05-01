@@ -3,7 +3,7 @@ import gym
 from gym.wrappers import TimeLimit
 from cartpolechat1 import DQN  # Assuming DQN is defined in cartpolechat1.py
 # --- Load environment ---
-env = gym.make("CartPole-v1")
+env = gym.make("CartPole-v1", render_mode="human")
 if isinstance(env, gym.wrappers.TimeLimit):
     env = env.env
 env = TimeLimit(env, max_episode_steps=3000)
@@ -25,9 +25,13 @@ policy_net.eval()  # Important: Set model to evaluation mode
 # --- Inference: 100 episodes ---
 total_rewards = []
 
+init_state = [0,0,0,0]
+
 with torch.no_grad():  # No gradients during testing
     for episode in range(1, 101):
-        state, _ = env.reset()
+        init_state, _ = env.reset()
+        state = init_state
+        env.render()  # Render the environment
         total_reward = 0
         done = False
 
@@ -41,7 +45,7 @@ with torch.no_grad():  # No gradients during testing
             state = next_state
             total_reward += reward
 
-        print(f"Test Episode {episode}: Reward = {total_reward}")
+        print(f"Test Episode {episode}: State {init_state}: Reward = {total_reward}")
         total_rewards.append(total_reward)
 
 env.close()

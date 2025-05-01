@@ -100,11 +100,12 @@ def train():
     all_rewards = []
 
     epsilon = epsilon_start
-
+    total_reward = 0
+    
     # --- Training ---
     for episode in range(1, 500):
         state, _ = env.reset()
-        total_reward = 0
+        # total_reward = 0
         done = False
         while not done:
             # epsilon = epsilon_end + (epsilon_start - epsilon_end) * np.exp(-1. * steps_done / epsilon_decay)
@@ -149,7 +150,7 @@ def train():
                 target_net.load_state_dict(policy_net.state_dict())
         all_rewards.append(total_reward)
 
-        print(f"Episode {episode} Epsilon {epsilon:.2f} Reward: {total_reward} ")
+        print(f"Episode {episode} Epsilon {epsilon:.2f} Reward: {total_reward / episode } ")
 
         if total_reward >= 3000:
             print(f"Solved! Survived 3000 steps at episode {episode}")
@@ -158,7 +159,7 @@ def train():
 
     import matplotlib.pyplot as plt
 
-    plt.plot(all_rewards)
+    plt.plot(all_rewards.cumsum() / len(all_rewards))
     plt.xlabel('Episode')
     plt.ylabel('Reward')
     plt.title('CartPole DQN with Prioritized Replay')
