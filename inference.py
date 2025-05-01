@@ -7,7 +7,7 @@ from cartpolechat1 import DQN, add_state_dim  # Assuming DQN is defined in cartp
 env = gym.make("CartPole-v1", render_mode="human")
 if isinstance(env, gym.wrappers.TimeLimit):
     env = env.env
-env = TimeLimit(env, max_episode_steps=3000)
+env = TimeLimit(env, max_episode_steps=10000)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -48,6 +48,8 @@ with torch.no_grad():  # No gradients during testing
             done = terminated or truncated
             state = next_state
             total_reward += reward
+            if total_reward % 500 == 0:
+                print(f"   total reward {total_reward}" )
 
         print(f"Test Episode {episode}: State {init_state}: Reward = {total_reward}")
         total_rewards.append(total_reward)

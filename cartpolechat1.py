@@ -83,7 +83,7 @@ def train():
         env = env.env
 
     # Now wrap manually
-    env = TimeLimit(env, max_episode_steps=3000)
+    env = TimeLimit(env, max_episode_steps=10000)
 
     state_dim = env.observation_space.shape[0] + 1
     action_dim = env.action_space.n
