@@ -2,7 +2,7 @@ import torch
 import gym
 import numpy as np
 from gym.wrappers import TimeLimit
-from cartpolechat1 import DQN, add_state_dim  # Assuming DQN is defined in cartpolechat1.py
+from gym_train import DQN, add_state_dim  # Assuming DQN is defined in cartpolechat1.py
 # --- Load environment ---
 env = gym.make("CartPole-v1", render_mode="human")
 if isinstance(env, gym.wrappers.TimeLimit):
